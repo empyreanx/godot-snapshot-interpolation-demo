@@ -1,8 +1,11 @@
 extends RigidBody2D
 
-const SCALE_FACTOR = 50
+const SCALE_FACTOR = 25
 
 var dragging = false
+
+func print_name():
+	print(get_name())
 
 func start_dragging():
 	set_gravity_scale(0)
