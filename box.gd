@@ -51,10 +51,12 @@ func stop_dragging():
 	if (host):
 		set_gravity_scale(1)
 		set_applied_force(Vector2(0,0))
+	else:
+		stream.put_var(["stop_drag", get_name()])
 
 func drag(pos):
 	if (host):
 		set_applied_force((pos - get_pos()) * SCALE_FACTOR)
 	else:
 		print(get_name())
-		stream.put_var([get_name(), pos])
+		stream.put_var(["drag", get_name(), pos])

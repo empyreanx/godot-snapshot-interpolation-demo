@@ -83,11 +83,13 @@ func _process(delta):
 		for peer in peers:
 			while (peer.packet.get_available_packet_count() > 0):
 				var data = peer.packet.get_var()
-				var name = data[0]
-				var pos = data[1]
-				print(name)
-				var box = get_node("boxes/" + name)
-				box.drag(pos)
+				var type = data[0]
+				var box = get_node("boxes/" + data[1])
+				
+				if (type == "drag"):
+					box.drag(data[2])
+				elif (type == "stop_drag"):
+					box.stop_dragging()
 		
 	if (ready and not host and stream_peer.is_connected()):
 		while (packet_peer.get_available_packet_count() > 0):
