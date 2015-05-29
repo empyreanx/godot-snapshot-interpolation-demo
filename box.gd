@@ -26,10 +26,10 @@ func _input_event(viewport, event, shape_idx):
 		start_dragging()
 
 func _input(event):
-		var rect = get_tree().get_root().get_rect()
-		var pos = event.pos
-		
 		if (event.type == InputEvent.MOUSE_MOTION and dragging):
+			var rect = get_tree().get_root().get_rect()
+			var pos = event.pos
+			
 			if (pos.x <= 0 or pos.y <= 0 or pos.x >= (rect.size.x - 1) or pos.y >= (rect.size.y - 1)):
 				stop_dragging()
 			else:
