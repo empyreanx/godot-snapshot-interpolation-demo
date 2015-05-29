@@ -1,21 +1,14 @@
 extends RigidBody2D
 
+const EVENT_START_DRAG = 0
+const EVENT_END_DRAG = 1
+const EVENT_DRAGGING = 2
+
 const SCALE_FACTOR = 25
 
+var host = true;
 var dragging = false
-
-func print_name():
-	print(get_name())
-
-func start_dragging():
-	set_gravity_scale(0)
-	set_linear_velocity(Vector2(0,0))
-	dragging = true
-
-func stop_dragging():
-	dragging = false
-	set_gravity_scale(1)
-	set_applied_force(Vector2(0,0))
+var stream = null
 
 func _ready():
 	set_process_input(true)
@@ -33,8 +26,35 @@ func _input(event):
 			if (pos.x <= 0 or pos.y <= 0 or pos.x >= (rect.size.x - 1) or pos.y >= (rect.size.y - 1)):
 				stop_dragging()
 			else:
-				set_applied_force((pos - get_pos()) * SCALE_FACTOR)
+				drag(pos)
 				
 		elif (event.type == InputEvent.MOUSE_BUTTON and not event.pressed and dragging):
 			stop_dragging()
+
+func set_host(enable):
+	host = enable
+
+func set_stream(tcp_stream):
+	stream = tcp_stream
+
+func start_dragging():
+	dragging = true
+
+	if (host):
+		set_gravity_scale(0)
+		set_linear_velocity(Vector2(0,0))
+		
+
+func stop_dragging():
+	dragging = false
 	
+	if (host):
+		set_gravity_scale(1)
+		set_applied_force(Vector2(0,0))
+
+func drag(pos):
+	if (host):
+		set_applied_force((pos - get_pos()) * SCALE_FACTOR)
+	else:
+		print(get_name())
+		stream.put_var([get_name(), pos])
