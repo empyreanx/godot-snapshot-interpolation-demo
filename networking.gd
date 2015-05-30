@@ -2,8 +2,9 @@ extends Node
 
 var DelayBuffer = load("delaybuffer.gd")
 
-const NETWORK_FPS = 1.0 / 10.0
-const BUFFER_DELAY = 0.1
+const INTERPOLATION = true
+const NETWORK_FPS = 1.0 / 15.0
+const BUFFER_DELAY = 0.3
 
 var timer = 0
 var host = true
@@ -111,9 +112,20 @@ func _process(delta):
 			var name = data[0]
 			var rot = data[1]
 			var pos = data[2]
-			var box = get_node("boxes/" + name)
-			box.set_pos(pos)
-			box.set_rot(rot)
+			
+			if (INTERPOLATION):
+				buffers[name].push_frame(pos, rot)
+			else:
+				var box = get_node("boxes/" + name)
+				box.set_pos(pos)
+				box.set_rot(rot)
+		
+		if (INTERPOLATION):
+			for box in boxes:
+				var buffer = buffers[box.get_name()]
+				buffer.update(delta)
+				box.set_pos(buffer.get_pos())
+				box.set_rot(buffer.get_rot())
 
 # sets all boxes to host mode
 func set_host_boxes(host):
