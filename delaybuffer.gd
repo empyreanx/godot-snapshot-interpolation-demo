@@ -10,8 +10,8 @@ var pos = Vector2(0,0)
 var rot = 0
 var last_time = 0.0
 
-func _init(buffer_window):
-	window = buffer_window
+func _init(window):
+	self.window = window
 	
 func reset():
 	state = BUFFERING

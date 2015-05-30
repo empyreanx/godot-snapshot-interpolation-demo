@@ -57,26 +57,27 @@ func _on_start_pressed():
 
 func _on_connect_pressed():
 	if (not ready):
-		host = false
-		set_host_boxes(false)
-	
 		if (stream_peer.connect(ip.get_text(), port.get_val()) != OK):
 			print("Error connecting to ", ip.get_text(), ":", port.get_val())
 		else:
 			print("Connected to ", ip.get_text(), ":", port.get_val())
-			ready = true
 			start_btn.set_disabled(true)
 			connect_btn.set_text("Disconnect")
-			set_stream_boxes(packet_peer)
+			set_host_boxes(false)
 			toggle_kinematic_boxes(true)
+			set_stream_boxes(packet_peer)
+			host = false
+			ready = true
 			
 	else:
 		print("Disconnecting from ", ip.get_text(), ":", port.get_val())
 		ready = false
+		host = true
+		stream_peer.disconnect()
+		toggle_kinematic_boxes(false)
+		set_host_boxes(true)
 		start_btn.set_disabled(false)
 		connect_btn.set_text("Connect")
-		toggle_kinematic_boxes(false)
-		stream_peer.disconnect()
 		
 func _process(delta):
 	if (ready and host):
