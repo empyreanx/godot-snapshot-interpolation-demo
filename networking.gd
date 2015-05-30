@@ -1,9 +1,9 @@
 extends Node
 
-var DelayBuffer = load("delaybuffer.gd")
+var Buffer = load("buffer.gd")
 
 const NETWORK_FPS = 1.0 / 10.0
-const BUFFER_DELAY = 0.15
+const BUFFER_WINDOW = 0.15
 
 var interpolation = false
 var timer = 0
@@ -31,7 +31,7 @@ func _ready():
 	boxes = get_node("boxes").get_children()
 	
 	for box in boxes:
-		buffers[box.get_name()] = DelayBuffer.new(BUFFER_DELAY)
+		buffers[box.get_name()] = Buffer.new(BUFFER_WINDOW)
 	
 	packet_peer.set_stream_peer(stream_peer)
 	set_process(true)
