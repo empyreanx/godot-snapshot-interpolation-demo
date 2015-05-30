@@ -1,5 +1,11 @@
 extends Node
 
+var DelayBuffer = load("delaybuffer.gd")
+
+const NETWORK_FPS = 1.0 / 10.0
+const BUFFER_DELAY = 0.1
+
+var timer = 0
 var host = true
 var ready = false
 var start_btn = null
@@ -14,13 +20,18 @@ var stream_peer = StreamPeerTCP.new()
 var packet_peer = PacketPeerStream.new()
 
 var boxes = null
+var buffers = {}
 
 func _ready():
 	start_btn = get_node("controls/start")
 	connect_btn = get_node("controls/connect")
 	port = get_node("controls/port")
 	ip = get_node("controls/ip")
-	boxes = get_node("boxes").get_children()	
+	boxes = get_node("boxes").get_children()
+	
+	for box in boxes:
+		buffers[box.get_name()] = DelayBuffer.new(BUFFER_DELAY)
+	
 	packet_peer.set_stream_peer(stream_peer)
 	set_process(true)
  
@@ -60,7 +71,7 @@ func _on_connect_pressed():
 			
 	else:
 		print("Disconnecting from ", ip.get_text(), ":", port.get_val())
-		ready = false		
+		ready = false
 		start_btn.set_disabled(false)
 		connect_btn.set_text("Connect")
 		toggle_kinematic_boxes(false)
@@ -74,10 +85,14 @@ func _process(delta):
 			packet_peer.set_stream_peer(stream_peer)
 			peers.append({ stream = stream_peer, packet = packet_peer })
 		
-		for box in boxes:
-			for peer in peers:
-				if (peer.stream.is_connected()):
-					peer.packet.put_var([box.get_name(), box.get_rot(), box.get_pos()])
+		if (timer < NETWORK_FPS):
+			timer += delta
+		else:
+			timer = 0
+			for box in boxes:
+				for peer in peers:
+					if (peer.stream.is_connected()):
+						peer.packet.put_var([box.get_name(), box.get_rot(), box.get_pos()])
 		
 		for peer in peers:
 			while (peer.packet.get_available_packet_count() > 0):
