@@ -2,10 +2,10 @@ extends Node
 
 var DelayBuffer = load("delaybuffer.gd")
 
-const INTERPOLATION = true
-const NETWORK_FPS = 1.0 / 15.0
-const BUFFER_DELAY = 0.3
+const NETWORK_FPS = 1.0 / 10.0
+const BUFFER_DELAY = 0.15
 
+var interpolation = false
 var timer = 0
 var host = true
 var ready = false
@@ -113,19 +113,26 @@ func _process(delta):
 			var rot = data[1]
 			var pos = data[2]
 			
-			if (INTERPOLATION):
+			if (interpolation):
 				buffers[name].push_frame(pos, rot)
 			else:
 				var box = get_node("boxes/" + name)
 				box.set_pos(pos)
 				box.set_rot(rot)
 		
-		if (INTERPOLATION):
+		if (interpolation):
 			for box in boxes:
 				var buffer = buffers[box.get_name()]
 				buffer.update(delta)
 				box.set_pos(buffer.get_pos())
 				box.set_rot(buffer.get_rot())
+
+func _on_lerp_toggled(pressed):
+	interpolation = pressed
+	
+	if (pressed):
+		for box in boxes:
+			buffers[box.get_name()].reset()
 
 # sets all boxes to host mode
 func set_host_boxes(host):

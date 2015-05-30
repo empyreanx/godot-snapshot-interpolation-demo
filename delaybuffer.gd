@@ -1,44 +1,57 @@
-var delay = 0
-var buffer = []
-var state = { pos = Vector2(0,0), rot = 0.0, age = 0.0 }
+const BUFFERING = 0
+const PLAYING = 1
 
-func _init(buffer_delay):
-	delay = buffer_delay
+var state = BUFFERING
+var buffer = []
+var window = 0
+var time = 0
+var mark = 0
+var pos = Vector2(0,0)
+var rot = 0
+var last_time = 0.0
+
+func _init(buffer_window):
+	window = buffer_window
+	
+func reset():
+	state = BUFFERING
+	buffer = []
+	time = 0
+	mark = 0
+	pos = Vector2(0,0)
+	rot = 0
+	last_time = 0
 
 func push_frame(pos, rot):
-	buffer.push_back({ pos = pos, rot = rot, age = 0.0 })
+	buffer.push_back({ pos = pos, rot = rot, time = time })
 
 func get_pos():
-	return state.pos
+	return pos
 
 func get_rot():
-	return state.rot
+	return rot
 
 func update(delta):
-	while (buffer.size() >= 2 and buffer[1].age > delay):
-		buffer.remove(0)
-
-	if (buffer.size() >= 2 and buffer[0].age > delay):
-		state.pos = lerp_pos(buffer[0], buffer[1])
-		state.rot = lerp_rot(buffer[0], buffer[1])
-		state.age = delay
-	elif (buffer.size() > 0 and buffer[0].age < delay):
-		state.pos = lerp_pos(state, buffer[0])
-		state.rot = lerp_rot(state, buffer[0])
-		state.age = delay
-	elif (buffer.size() > 0):
-		state = buffer[0]
-		state.age += delta
-	else:
-		state.age += delta
-	
-	for frame in buffer:
-		frame.age += delta
-
-func lerp_pos(s1, s2):
-	var alpha = (s1.age - delay) / (s1.age - s2.age)
-	return s1.pos * alpha + s2.pos * (1.0 - alpha)
-	
-func lerp_rot(s1, s2):
-	var alpha = (s1.age - delay) / (s1.age - s2.age)
-	return s1.rot * alpha + s2.rot * (1.0 - alpha)
+	if (state == BUFFERING):
+		if (buffer.size() > 0):
+			pos = buffer[0].pos
+			rot = buffer[0].rot
+			last_time = buffer[0].time
+			
+			if (time > window):
+				state = PLAYING
+	elif (state == PLAYING):
+		while (buffer.size() > 0 and mark > buffer[0].time):
+			pos = buffer[0].pos
+			rot = buffer[0].rot
+			last_time = buffer[0].time
+			buffer.remove(0)
+		
+		if (buffer.size() > 0):
+			var alpha = (buffer[0].time - mark) / (buffer[0].time - last_time)
+			pos = pos * alpha + buffer[0].pos * (1.0 - alpha)
+			rot = rot * alpha + buffer[0].rot * (1.0 - alpha)
+			
+		mark += delta
+		
+	time += delta
