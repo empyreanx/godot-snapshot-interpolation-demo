@@ -6,8 +6,8 @@ const EVENT_DRAGGING = 2
 
 const SCALE_FACTOR = 25
 
-var host = true;
 var dragging = false
+var host = true;
 var stream = null
 
 func _ready():
@@ -31,12 +31,6 @@ func _input(event):
 		elif (event.type == InputEvent.MOUSE_BUTTON and not event.pressed and dragging):
 			stop_dragging()
 
-func set_host(enable):
-	host = enable
-
-func set_stream(tcp_stream):
-	stream = tcp_stream
-
 func start_dragging():
 	dragging = true
 
@@ -58,5 +52,4 @@ func drag(pos):
 	if (host):
 		set_applied_force((pos - get_pos()) * SCALE_FACTOR)
 	else:
-		print(get_name())
 		stream.put_var(["drag", get_name(), pos])

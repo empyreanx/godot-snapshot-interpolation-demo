@@ -2,7 +2,6 @@ extends Node
 
 var host = true
 var ready = false
-
 var start_btn = null
 var connect_btn = null
 var port = null
@@ -104,12 +103,12 @@ func _process(delta):
 # sets all boxes to host mode
 func set_host_boxes(host):
 	for box in boxes:
-		box.set_host(host)
+		box.host = host
 
 # set stream for boxes
 func set_stream_boxes(stream):
 	for box in boxes:
-		box.set_stream(stream)
+		box.stream = stream
 
 # sets toggles kinematic mode on boxes
 func toggle_kinematic_boxes(enabled):
