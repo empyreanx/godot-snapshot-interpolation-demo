@@ -1,6 +1,6 @@
 extends Node
 
-var Buffer = load("buffer.gd")
+var KinematicBuffer = load("kinematicbuffer.gd")
 
 const NETWORK_FPS = 1.0 / 10.0
 const BUFFER_WINDOW = 0.15
@@ -31,7 +31,7 @@ func _ready():
 	boxes = get_node("boxes").get_children()
 	
 	for box in boxes:
-		buffers[box.get_name()] = Buffer.new(BUFFER_WINDOW)
+		buffers[box.get_name()] = KinematicBuffer.new(BUFFER_WINDOW)
 	
 	packet_peer.set_stream_peer(stream_peer)
 	set_process(true)
