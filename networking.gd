@@ -38,22 +38,19 @@ func _ready():
  
 func _on_start_pressed():
 	if (not ready):
-		host = true
-		set_host_boxes(true)
-		
 		if (server.listen(port.get_val()) != OK):
 			print("Error listening on port ", port.get_value())
 		else:
 			print("Listening on port ", port.get_value())
-			connect_btn.set_disabled(true)
 			start_btn.set_text("Stop Server")
-			ready = true
+			connect_btn.set_disabled(true)
+			start_server()
 	else:
+		stop_server()
 		print("Stopped listening on ", port.get_value())
-		ready = false
-		connect_btn.set_disabled(false)
 		start_btn.set_text("Start Server")
-		server.stop()
+		connect_btn.set_disabled(false)
+		
 
 func _on_connect_pressed():
 	if (not ready):
@@ -61,23 +58,15 @@ func _on_connect_pressed():
 			print("Error connecting to ", ip.get_text(), ":", port.get_val())
 		else:
 			print("Connected to ", ip.get_text(), ":", port.get_val())
-			start_btn.set_disabled(true)
 			connect_btn.set_text("Disconnect")
-			set_host_boxes(false)
-			toggle_kinematic_boxes(true)
-			set_stream_boxes(packet_peer)
-			host = false
-			ready = true
+			start_btn.set_disabled(true)
+			start_client()
 			
 	else:
-		print("Disconnecting from ", ip.get_text(), ":", port.get_val())
-		ready = false
-		host = true
-		stream_peer.disconnect()
-		toggle_kinematic_boxes(false)
-		set_host_boxes(true)
-		start_btn.set_disabled(false)
+		stop_client();
+		print("Disconnected from ", ip.get_text(), ":", port.get_val())
 		connect_btn.set_text("Connect")
+		start_btn.set_disabled(false)
 		
 func _process(delta):
 	if (ready and host):
@@ -135,17 +124,40 @@ func _on_lerp_toggled(pressed):
 		for box in boxes:
 			buffers[box.get_name()].reset()
 
-# sets all boxes to host mode
+func start_client():
+	set_host_boxes(false)
+	toggle_kinematic_boxes(true)
+	set_stream_boxes(packet_peer)
+	host = false
+	ready = true
+	
+func stop_client():
+	ready = false
+	host = true
+	stream_peer.disconnect()
+	toggle_kinematic_boxes(false)
+	set_host_boxes(true)
+	
+func start_server():
+	set_host_boxes(true)
+	host = true
+	ready = true
+	
+func stop_server():
+	ready = false
+	server.stop()
+
+# Sets all boxes to host mode
 func set_host_boxes(host):
 	for box in boxes:
 		box.host = host
 
-# set stream for boxes
+# Set stream for boxes
 func set_stream_boxes(stream):
 	for box in boxes:
 		box.stream = stream
 
-# sets toggles kinematic mode on boxes
+# Sets toggles kinematic mode on boxes
 func toggle_kinematic_boxes(enabled):
 	for box in boxes:
 		if (enabled):
