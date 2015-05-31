@@ -45,9 +45,9 @@ func _on_start_pressed():
 			print("Error listening on port ", port.get_value())
 		else:
 			print("Listening on port ", port.get_value())
-			ready = true
 			connect_btn.set_disabled(true)
 			start_btn.set_text("Stop Server")
+			ready = true
 	else:
 		print("Stopped listening on ", port.get_value())
 		ready = false

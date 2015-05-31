@@ -12,11 +12,11 @@ var pos = Vector2(0,0)
 var rot = 0
 var last_time = 0.0
 
-# window - time length of buffer
+# Window - time length of buffer
 func _init(window):
 	self.window = window
 
-# called on connect
+# Called on connect
 func reset():
 	state = BUFFERING
 	buffer = []
@@ -35,7 +35,7 @@ func get_pos():
 func get_rot():
 	return rot
 
-# perform interpolation for frame
+# Perform interpolation for frame
 func update(delta):
 	if (state == BUFFERING):
 		if (buffer.size() > 0):
@@ -46,7 +46,7 @@ func update(delta):
 			if (time > window):
 				state = PLAYING
 	elif (state == PLAYING):
-		# purge buffer of expired frames
+		# Purge buffer of expired frames
 		while (buffer.size() > 0 and mark > buffer[0].time):
 			pos = buffer[0].pos
 			rot = buffer[0].rot
@@ -55,22 +55,33 @@ func update(delta):
 		
 		if (buffer.size() > 0):
 			var alpha = (buffer[0].time - mark) / (buffer[0].time - last_time)
+			
+			# The choice of weight might seem counter-intuitive, but it is correct:
+			# if the 'mark' is close to the next frame in the buffer, then alpha is small,
+			# and we want most of the weight on the next frame.
 			pos = pos * alpha + buffer[0].pos * (1.0 - alpha)
+			
+			# The choice of weight is even stranger, given the above, but is also correct:
+			# we are trying to interpolate to the 'mark', which is between the last rot
+			# value and the next one in the buffer. This happens to be 1.0 - alpha times
+			# the angle between the last value and the one in the buffer.
 			rot = slerp_rot(rot, buffer[0].rot, 1.0 - alpha)
+			
+			# Naive (wrong) method of interpolating rotations:
 			#rot = rot * alpha + buffer[0].rot * (1.0 - alpha)
 			
 		mark += delta
 		
 	time += delta
 
-# spherically linear interpolation of rotation
+# Spherically linear interpolation of rotation
 func slerp_rot(r1, r2, alpha):
 	var v1 = Vector2(cos(r1), sin(r1))
 	var v2 = Vector2(cos(r2), sin(r2))
 	var v = slerp(v1, v2, alpha)
 	return atan2(v.y, v.x)
 
-# spherical linear interpolation of two 2D vectors
+# Spherical linear interpolation of two 2D vectors
 func slerp(v1, v2, alpha):
 	var cos_angle = v1.dot(v2)
 	var angle = acos(cos_angle)
