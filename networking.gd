@@ -2,8 +2,8 @@ extends Node
 
 var KinematicBuffer = load("kinematicbuffer.gd")
 
-const FRAME_DURATION = 1.0 / 10.0
-const BUFFER_WINDOW = 0.15
+var frame_duration = 0
+var buffer_window = 0
 
 var interpolation = false
 var timer = 0
@@ -35,49 +35,41 @@ func _ready():
 	ip = get_node("controls/ip")
 	boxes = get_node("boxes").get_children()
 	
+	load_defaults()
+	
 	for box in boxes:
-		buffers[box.get_name()] = KinematicBuffer.new(BUFFER_WINDOW)
+		buffers[box.get_name()] = KinematicBuffer.new(buffer_window)
 	
 	packet_peer.set_stream_peer(stream_peer)
 	set_process(true)
- 
-func load_defaults():
-	pass
 	
+	for arg in OS.get_cmdline_args():
+		if (arg == "-server"):
+			start_server()
+			break
+
+# Load default values
+func load_defaults():
+	var config_file = ConfigFile.new()
+	config_file.load("res://defaults.cfg")
+	frame_duration = config_file.get_value("defaults", "frame_duration")
+	buffer_window = config_file.get_value("defaults", "frame_duration")
+	ip.set_text(config_file.get_value("defaults", "ip"))
+	port.set_value(config_file.get_value("defaults", "port"))
 
 # Toggle starting/stoping a server
 func _on_start_pressed():
 	if (not ready):
-		if (server.listen(port.get_val()) != OK):
-			print("Error listening on port ", port.get_value())
-		else:
-			print("Listening on port ", port.get_value())
-			start_btn.set_text("Stop Server")
-			connect_btn.set_disabled(true)
-			start_server()
+		start_server()
 	else:
-		stop_server()
-		print("Stopped listening on ", port.get_value())
-		start_btn.set_text("Start Server")
-		connect_btn.set_disabled(false)
-		
-
+		stop_server()	
+	
 # Toggle connecting/disconnecting a client
 func _on_connect_pressed():
-	if (not ready):
-		if (stream_peer.connect(ip.get_text(), port.get_val()) != OK):
-			print("Error connecting to ", ip.get_text(), ":", port.get_val())
-		else:
-			print("Connected to ", ip.get_text(), ":", port.get_val())
-			connect_btn.set_text("Disconnect")
-			start_btn.set_disabled(true)
-			start_client()
-			
+	if (not ready):	
+		start_client()	
 	else:
 		stop_client();
-		print("Disconnected from ", ip.get_text(), ":", port.get_val())
-		connect_btn.set_text("Connect")
-		start_btn.set_disabled(false)
 		
 func _process(delta):
 	#Server update
@@ -90,7 +82,7 @@ func _process(delta):
 		
 		# After waiting (to simulate network less than ideal network conditions),
 		# set a snapshot
-		if (timer < FRAME_DURATION):
+		if (timer < frame_duration):
 			timer += delta
 		else:
 			timer = 0
@@ -146,11 +138,17 @@ func _on_lerp_toggled(pressed):
 
 # Start/stop functions for client/server
 func start_client():
-	set_host_boxes(false)
-	toggle_kinematic_boxes(true)
-	set_stream_boxes(packet_peer)
-	host = false
-	ready = true
+	if (stream_peer.connect(ip.get_text(), port.get_val()) != OK):
+		print("Error connecting to ", ip.get_text(), ":", port.get_val())
+	else:
+		print("Connected to ", ip.get_text(), ":", port.get_val())
+		connect_btn.set_text("Disconnect")
+		start_btn.set_disabled(true)
+		set_host_boxes(false)
+		toggle_kinematic_boxes(true)
+		set_stream_boxes(packet_peer)
+		host = false
+		ready = true
 	
 func stop_client():
 	ready = false
@@ -158,13 +156,25 @@ func stop_client():
 	stream_peer.disconnect()
 	toggle_kinematic_boxes(false)
 	set_host_boxes(true)
+	print("Disconnected from ", ip.get_text(), ":", port.get_val())
+	connect_btn.set_text("Connect")
+	start_btn.set_disabled(false)
 	
 func start_server():
-	set_host_boxes(true)
-	host = true
-	ready = true
+	if (server.listen(port.get_val()) != OK):
+		print("Error listening on port ", port.get_value())
+	else:
+		print("Listening on port ", port.get_value())
+		start_btn.set_text("Stop Server")
+		connect_btn.set_disabled(true)
+		set_host_boxes(true)
+		host = true
+		ready = true
 	
 func stop_server():
+	print("Stopped listening on ", port.get_value())
+	start_btn.set_text("Start Server")
+	connect_btn.set_disabled(false)
 	ready = false
 	server.stop()
 

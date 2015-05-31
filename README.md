@@ -6,13 +6,13 @@ The server runs a simple physical simulation involving three boxes. Users can dr
 
 The client uses an interpolated buffer to ensure animation remains smooth even in the face of bad network conditions..
 
+To start a dedicated server with the headless version of Godot type, "godotserver -s server.gd -server"
+
 ## Todo:
-* Configuration file
-* Add dedicated server script
 * Implement simple delta compression
 * Implement name-id cache
-* More user-interface controls
 * Fix bugs 
+* More user-interface controls
 * Write UDP version (based on EnhancedPacketPeer)
 
 ##Known Bugs:
