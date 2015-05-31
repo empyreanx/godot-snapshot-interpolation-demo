@@ -89,7 +89,7 @@ func _process(delta):
 			for box in boxes:
 				for peer in peers:
 					if (peer.stream.is_connected()):
-						peer.packet.put_var([box.get_name(), box.get_rot(), box.get_pos(), box.get_linear_velocity()])
+						peer.packet.put_var([ box.get_name(), box.get_rot(), box.get_pos() ])
 		
 		# Handle input
 		for peer in peers:
@@ -112,10 +112,9 @@ func _process(delta):
 			var name = data[0]
 			var rot = data[1]
 			var pos = data[2]
-			var vel = data[3]
 			
 			if (interpolation):
-				buffers[name].push_frame(pos, rot, vel)
+				buffers[name].push_frame(pos, rot)
 			else:
 				var box = get_node("boxes/" + name)
 				box.set_pos(pos)

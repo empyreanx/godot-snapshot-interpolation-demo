@@ -1,8 +1,6 @@
 const BUFFERING = 0
 const PLAYING = 1
 
-const EPSILON = 0.0005
-
 var initialized = false
 var state = BUFFERING
 var buffer = []
@@ -10,7 +8,6 @@ var window = 0
 var time = 0
 var mark = 0
 var last_pos = Vector2(0,0)
-var last_vel = Vector2(0,0)
 var last_rot = 0
 var last_time = 0.0
 var pos = Vector2(0,0)
@@ -28,18 +25,20 @@ func reset():
 	time = 0
 	mark = 0
 	last_pos = Vector2(0,0)
-	last_vel = Vector2(0,0)
 	last_rot = 0
 	last_time = 0
 	pos = Vector2(0,0)
 	rot = 0
-	
-func push_frame(pos, rot, vel):
-	buffer.push_back({ pos = pos, rot = rot, vel = vel, time = time })
 
+# Add a frame to the buffer
+func push_frame(pos, rot):
+	buffer.push_back({ pos = pos, rot = rot, time = time })
+
+# Get interpolated position
 func get_pos():
 	return pos
 
+# Get interpolated rotation
 func get_rot():
 	return rot
 
@@ -49,7 +48,6 @@ func update(delta):
 		if (buffer.size() > 0 and not initialized):
 			last_pos = buffer[0].pos
 			last_rot = buffer[0].rot
-			last_vel = buffer[0].vel
 			last_time = buffer[0].time
 			initialized = true
 			buffer.erase(0)
@@ -61,17 +59,13 @@ func update(delta):
 		while (buffer.size() > 0 and mark > buffer[0].time):
 			last_pos = buffer[0].pos
 			last_rot = buffer[0].rot
-			last_vel = buffer[0].vel
 			last_time = buffer[0].time
 			buffer.remove(0)
 		
-		if (buffer.size() > 0):
+		if (buffer.size() > 0 and buffer[0].time > 0):
 			var alpha = (mark - last_time) / (buffer[0].time - last_time)
 			
-			# Use cubic Hermite interpolation to determine position
-			#pos = hermite(alpha, last_pos, buffer[0].pos, last_vel, buffer[0].vel)
-			
-			# Linear interpolation of position
+			# Linear interpolation of position (point closest to mark gets more weight)
 			pos = lerp_vector(last_pos, buffer[0].pos, 1.0 - alpha)
 			
 			# We are trying to interpolate to the 'mark', which is between the last rot
@@ -89,16 +83,6 @@ func update(delta):
 # Lerp vector
 func lerp_vector(v1, v2, alpha):
 	return v1 * alpha + v2 * (1.0 - alpha)
-
-# Cubic Hermite interpolation
-func hermite(t, p1, p2, v1, v2):
-	var t2 = pow(t, 2)
-	var t3 = pow(t, 3)
-	var a = 1 - 3*t2 + 2*t3
-	var b = t2 * (3 - 2*t)
-	var c = t * pow(t - 1, 2)
-	var d = t2 * (t - 1)
-	return a * p1 + b * p2 + c * v1 + d * v2
 
 # Spherically linear interpolation of rotation
 func slerp_rot(r1, r2, alpha):
