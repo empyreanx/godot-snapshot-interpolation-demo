@@ -3,14 +3,18 @@ const PLAYING = 1
 
 const EPSILON = 0.0005
 
+var initialized = false
 var state = BUFFERING
 var buffer = []
 var window = 0
 var time = 0
 var mark = 0
+var last_pos = Vector2(0,0)
+var last_vel = Vector2(0,0)
+var last_rot = 0
+var last_time = 0.0
 var pos = Vector2(0,0)
 var rot = 0
-var last_time = 0.0
 
 # Window - time length of buffer
 func _init(window):
@@ -18,16 +22,20 @@ func _init(window):
 
 # Called on connect
 func reset():
+	initialized = false
 	state = BUFFERING
 	buffer = []
 	time = 0
 	mark = 0
+	last_pos = Vector2(0,0)
+	last_vel = Vector2(0,0)
+	last_rot = 0
+	last_time = 0
 	pos = Vector2(0,0)
 	rot = 0
-	last_time = 0
-
-func push_frame(pos, rot):
-	buffer.push_back({ pos = pos, rot = rot, time = time })
+	
+func push_frame(pos, rot, vel):
+	buffer.push_back({ pos = pos, rot = rot, vel = vel, time = time })
 
 func get_pos():
 	return pos
@@ -38,34 +46,38 @@ func get_rot():
 # Perform interpolation for frame
 func update(delta):
 	if (state == BUFFERING):
-		if (buffer.size() > 0):
-			pos = buffer[0].pos
-			rot = buffer[0].rot
+		if (buffer.size() > 0 and not initialized):
+			last_pos = buffer[0].pos
+			last_rot = buffer[0].rot
+			last_vel = buffer[0].vel
 			last_time = buffer[0].time
+			initialized = true
+			buffer.erase(0)
 			
-			if (time > window):
-				state = PLAYING
+		if (buffer.size() > 0 and initialized and time > window):
+			state = PLAYING
 	elif (state == PLAYING):
 		# Purge buffer of expired frames
 		while (buffer.size() > 0 and mark > buffer[0].time):
-			pos = buffer[0].pos
-			rot = buffer[0].rot
+			last_pos = buffer[0].pos
+			last_rot = buffer[0].rot
+			last_vel = buffer[0].vel
 			last_time = buffer[0].time
 			buffer.remove(0)
 		
 		if (buffer.size() > 0):
-			var alpha = (buffer[0].time - mark) / (buffer[0].time - last_time)
+			var alpha = (mark - last_time) / (buffer[0].time - last_time)
 			
-			# The choice of weight might seem counter-intuitive, but it is correct:
-			# if the 'mark' is close to the next frame in the buffer, then alpha is small,
-			# and we want most of the weight on the next frame.
-			pos = pos * alpha + buffer[0].pos * (1.0 - alpha)
+			# Use cubic Hermite interpolation to determine position
+			#pos = hermite(alpha, last_pos, buffer[0].pos, last_vel, buffer[0].vel)
 			
-			# The choice of weight is even stranger, given the above, but is also correct:
-			# we are trying to interpolate to the 'mark', which is between the last rot
-			# value and the next one in the buffer. This happens to be 1.0 - alpha times
+			# Linear interpolation of position
+			pos = lerp_vector(last_pos, buffer[0].pos, 1.0 - alpha)
+			
+			# We are trying to interpolate to the 'mark', which is between the last rot
+			# value and the next one in the buffer. This happens to be alpha times
 			# the angle between the last value and the one in the buffer.
-			rot = slerp_rot(rot, buffer[0].rot, 1.0 - alpha)
+			rot = slerp_rot(last_rot, buffer[0].rot, alpha)
 			
 			# Naive (wrong) method of interpolating rotations:
 			#rot = rot * alpha + buffer[0].rot * (1.0 - alpha)
@@ -73,6 +85,20 @@ func update(delta):
 		mark += delta
 		
 	time += delta
+
+# Lerp vector
+func lerp_vector(v1, v2, alpha):
+	return v1 * alpha + v2 * (1.0 - alpha)
+
+# Cubic Hermite interpolation
+func hermite(t, p1, p2, v1, v2):
+	var t2 = pow(t, 2)
+	var t3 = pow(t, 3)
+	var a = 1 - 3*t2 + 2*t3
+	var b = t2 * (3 - 2*t)
+	var c = t * pow(t - 1, 2)
+	var d = t2 * (t - 1)
+	return a * p1 + b * p2 + c * v1 + d * v2
 
 # Spherically linear interpolation of rotation
 func slerp_rot(r1, r2, alpha):
