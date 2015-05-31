@@ -1,8 +1,6 @@
 const BUFFERING = 0
 const PLAYING = 1
 
-const EPSILON = 0.0005
-
 var initialized = false
 var state = BUFFERING
 var buffer = []
@@ -65,14 +63,15 @@ func update(delta):
 			last_time = buffer[0].time
 			buffer.remove(0)
 		
-		if (buffer.size() > 0):
-			var alpha = (mark - last_time) / (buffer[0].time - last_time)
+		if (buffer.size() > 0 and buffer[0].time > 0):
+			var delta_time = buffer[0].time - last_time
+			var alpha = (mark - last_time) / (delta_time)
 			
 			# Use cubic Hermite interpolation to determine position
-			#pos = hermite(alpha, last_pos, buffer[0].pos, last_vel, buffer[0].vel)
+			pos = hermite(alpha, last_pos, buffer[0].pos, last_vel * delta_time, buffer[0].vel * delta_time)
 			
 			# Linear interpolation of position
-			pos = lerp_vector(last_pos, buffer[0].pos, 1.0 - alpha)
+			#pos = lerp_vector(last_pos, buffer[0].pos, 1.0 - alpha)
 			
 			# We are trying to interpolate to the 'mark', which is between the last rot
 			# value and the next one in the buffer. This happens to be alpha times
