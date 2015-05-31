@@ -9,6 +9,8 @@ The client uses an interpolated buffer to ensure animation remains smooth even i
 To start a dedicated server with the headless version of Godot, in the project directory type, "godotserver -server"
 
 ## Todo:
+* Incorporate linear velocity into interpolation
+* Make collision boundaries larger
 * Implement simple delta compression
 * Implement name-id cache
 * Fix bugs 
