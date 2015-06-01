@@ -1,10 +1,8 @@
 # Godot Networked Physics Demo (Work in Progress)
 
-A simple networked physics demo for the Godot game engine.
-
 The purpose of this demo is to demonstrate the essential techniques required to make real-time multiplayer games.
 
-The server runs a simple physical simulation involving three boxes. Users can drag the boxes around on either the client or the server. It simulates less than ideal network conditions by sending only a certain number of packets per second.
+The server runs a simple physical simulation involving three boxes. Users can drag the boxes around on either the client or the server. The server simulates less than ideal network conditions by sending only a limited number of packets per second.
 
 The client uses an interpolated buffer to ensure animation remains smooth even in the face of bad network conditions.
 
