@@ -2,15 +2,15 @@ extends Node
 
 var KinematicBuffer = load("kinematicbuffer.gd")
 
-var frame_duration = 0
-var buffer_window = 0
-
+var buffers_initialized =false
 var interpolation = false
 var timer = 0
 var host = true
 var ready = false
 var start_btn = null
 var connect_btn = null
+var window = null
+var network_fps = null
 var port = null
 var ip = null
 
@@ -33,12 +33,17 @@ func _ready():
 	connect_btn = get_node("controls/connect")
 	port = get_node("controls/port")
 	ip = get_node("controls/ip")
+	window = get_node("controls/window")
+	network_fps = get_node("controls/network_fps")
+	
 	boxes = get_node("boxes").get_children()
 	
 	load_defaults()
 	
 	for box in boxes:
-		buffers[box.get_name()] = KinematicBuffer.new(buffer_window)
+		buffers[box.get_name()] = KinematicBuffer.new(window.get_value())
+	
+	buffers_initialized = true
 	
 	packet_peer.set_stream_peer(stream_peer)
 	set_process(true)
@@ -52,10 +57,10 @@ func _ready():
 func load_defaults():
 	var config_file = ConfigFile.new()
 	config_file.load("res://defaults.cfg")
-	frame_duration = config_file.get_value("defaults", "frame_duration")
-	buffer_window = config_file.get_value("defaults", "frame_duration")
 	ip.set_text(config_file.get_value("defaults", "ip"))
 	port.set_value(config_file.get_value("defaults", "port"))
+	window.set_value(config_file.get_value("defaults", "window"))
+	network_fps.set_value(config_file.get_value("defaults", "network_fps"))
 
 # Toggle starting/stoping a server
 func _on_start_pressed():
@@ -82,7 +87,9 @@ func _process(delta):
 		
 		# After waiting (to simulate network less than ideal network conditions),
 		# set a snapshot
-		if (timer < frame_duration):
+		var duration = 1.0 / network_fps.get_value()
+		
+		if (timer < duration):
 			timer += delta
 		else:
 			timer = 0
@@ -135,6 +142,13 @@ func _on_lerp_toggled(pressed):
 	
 	if (pressed):
 		for box in boxes:
+			buffers[box.get_name()].reset()
+
+# Change buffer window
+func _on_window_value_changed(value):
+	if (buffers_initialized):
+		for box in boxes:
+			buffers[box.get_name()].window = value
 			buffers[box.get_name()].reset()
 
 # Start/stop functions for client/server
@@ -197,3 +211,4 @@ func toggle_kinematic_boxes(enabled):
 		else:
 			box.set_mode(RigidBody2D.MODE_RIGID)
 			box.set_sleeping(false)
+

@@ -73,9 +73,7 @@ func update(delta):
 			# Linear interpolation of position
 			#pos = lerp_vector(last_pos, buffer[0].pos, 1.0 - alpha)
 			
-			# We are trying to interpolate to the 'mark', which is between the last rot
-			# value and the next one in the buffer. This happens to be alpha times
-			# the angle between the last value and the one in the buffer.
+			# Spherical interpolation of rotation
 			rot = slerp_rot(last_rot, buffer[0].rot, alpha)
 			
 			# Naive (wrong) method of interpolating rotations:
