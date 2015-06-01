@@ -17,5 +17,6 @@ To start a dedicated server with the headless version of Godot, in the project d
 ## Todo:
 * Make collision boundaries larger
 * Implement simple delta compression
-* Implement name-id cache 
-* Write UDP version (based on EnhancedPacketPeer)
+* Implement name-id cache
+* Handle client disconnects
+* Write UDP version (based on ReliablePacketPeer)
