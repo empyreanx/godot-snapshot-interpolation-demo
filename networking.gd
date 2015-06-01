@@ -1,6 +1,6 @@
 extends Node
 
-var KinematicBuffer = load("kinematicbuffer.gd")
+var InterpolationBuffer = load("interpolationbuffer.gd")
 
 var buffers_initialized =false
 var interpolation = false
@@ -41,7 +41,7 @@ func _ready():
 	load_defaults()
 	
 	for box in boxes:
-		buffers[box.get_name()] = KinematicBuffer.new(window.get_value())
+		buffers[box.get_name()] = InterpolationBuffer.new(window.get_value())
 	
 	buffers_initialized = true
 	

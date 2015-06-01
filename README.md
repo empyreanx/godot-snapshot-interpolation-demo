@@ -6,7 +6,7 @@ The server runs a simple physical simulation involving three boxes. Users can dr
 
 The client uses an interpolated buffer to ensure animation remains smooth even in the face of bad network conditions.
 
-To start a dedicated server with the headless version of Godot, in the project directory type, "godotserver -server"
+To start a dedicated server with the headless version of Godot type, "godotserver -server" in the project directory.
 
 ## Features:
 * Input handling on both client and server
