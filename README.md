@@ -15,7 +15,6 @@ To start a dedicated server with the headless version of Godot type, "godotserve
 * Spherical linear interpolation for rotations
 
 ## Todo:
-* Make collision boundaries larger
 * Implement simple delta compression
 * Implement name-id cache
 * Handle client disconnects
