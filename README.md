@@ -8,14 +8,12 @@ The client uses an interpolated buffer to ensure animation remains smooth even i
 
 To start a dedicated server with the headless version of Godot type, "godotserver -server" in the project directory.
 
+I was going to try implementing delta compression, but it simply can't be done using Variants.
+
+To see where I got the ideas behind the interpolation, visit [Gaffer on Games](http://gafferongames.com/).
+
 ## Features:
 * Input handling on both client and server
 * Adjustable network frame rate to simulate less than ideal network conditions
 * Cubic Hermite interpolation for positions
 * Spherical linear interpolation for rotations
-
-## Todo:
-* Implement simple delta compression
-* Implement name-id cache
-* Handle client disconnects
-* Write UDP version (based on ReliablePacketPeer)
