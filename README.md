@@ -8,7 +8,7 @@ The client uses an interpolated buffer to ensure animation remains smooth even i
 
 To start a dedicated server with the headless version of Godot type, "godotserver -server" in the project directory.
 
-I was going to try implementing delta compression, but it simply can't be done using Variants.
+I was going to try implementing delta compression, but it simply can't be done using [variants](https://github.com/okamstudio/godot/wiki/core_variant).
 
 To see where I got the ideas behind the interpolation, visit [Gaffer on Games](http://gafferongames.com/).
 
