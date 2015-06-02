@@ -17,3 +17,7 @@ To see where I got the ideas behind the interpolation, visit [Gaffer on Games](h
 * Adjustable network frame rate to simulate less than ideal network conditions
 * Cubic Hermite interpolation for positions
 * Spherical linear interpolation for rotations
+
+## License
+Copyright (c) 2015 James McLean  
+Licensed under the MIT license.
