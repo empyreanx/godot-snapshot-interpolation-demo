@@ -1,4 +1,4 @@
-# Godot Networked Physics Demo
+# Snapshot Interplation Demo
 
 ## Introduction
 The purpose of this demo is to demonstrate essential techniques required to make real-time multiplayer games using the [Godot Engine](http://www.godotengine.org).
@@ -20,6 +20,9 @@ I did more reading about client-side prediction and lag compensation, and I've c
 * Adjustable network frame rate to simulate less than ideal network conditions
 * Cubic Hermite interpolation for positions
 * Spherical linear interpolation for rotations
+
+## Todo
+* Use UDP instead of TCP
 
 ## License
 Copyright (c) 2015 James McLean  
