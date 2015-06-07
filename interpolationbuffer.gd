@@ -32,7 +32,7 @@ func reset():
 	pos = Vector2(0,0)
 	rot = 0
 	
-func push_frame(pos, rot, vel):
+func push_state(pos, rot, vel):
 	buffer.push_back({ pos = pos, rot = rot, vel = vel, time = time })
 
 func get_pos():

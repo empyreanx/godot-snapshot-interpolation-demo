@@ -8,15 +8,14 @@ const SCALE_FACTOR = 25
 
 var dragging = false
 var host = true;
-var stream = null
+var packet_peer = null
 
 func _ready():
 	set_process_input(true)
-	pass
 
 func _input_event(viewport, event, shape_idx):
 	if (event.type == InputEvent.MOUSE_BUTTON and event.pressed):
-		start_dragging()
+		start_drag()
 
 func _input(event):
 		if (event.type == InputEvent.MOUSE_MOTION and dragging):
@@ -24,14 +23,14 @@ func _input(event):
 			var pos = event.pos
 			
 			if (pos.x <= 0 or pos.y <= 0 or pos.x >= (rect.size.x - 1) or pos.y >= (rect.size.y - 1)):
-				stop_dragging()
+				stop_drag()
 			else:
 				drag(pos)
 				
 		elif (event.type == InputEvent.MOUSE_BUTTON and not event.pressed and dragging):
-			stop_dragging()
+			stop_drag()
 
-func start_dragging():
+func start_drag():
 	dragging = true
 
 	if (host):
@@ -39,17 +38,17 @@ func start_dragging():
 		set_linear_velocity(Vector2(0,0))
 		
 
-func stop_dragging():
+func stop_drag():
 	dragging = false
 	
 	if (host):
 		set_gravity_scale(1)
 		set_applied_force(Vector2(0,0))
 	else:
-		stream.put_var(["stop_drag", get_name()])
+		packet_peer.put_var(["event", "stop_drag", get_name()])
 
 func drag(pos):
 	if (host):
 		set_applied_force((pos - get_pos()) * SCALE_FACTOR)
 	else:
-		stream.put_var(["drag", get_name(), pos])
+		packet_peer.put_var(["event", "drag", get_name(), pos])
