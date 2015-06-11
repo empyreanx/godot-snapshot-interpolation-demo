@@ -50,7 +50,7 @@ func update(delta):
 			last_vel = buffer[0].vel
 			last_time = buffer[0].time
 			initialized = true
-			buffer.erase(0)
+			buffer.remove(0)
 			
 		if (buffer.size() > 0 and initialized and time > window):
 			state = PLAYING
