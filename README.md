@@ -1,8 +1,8 @@
 # Snapshot Interplation Demo
 
-## Introduction
-
 **Note:** Snapshot interpolation is no longer my favoured approach for networked physics using Godot. Please see the [state synchronization demo](https://github.com/jrimclean/godot-state-sync-demo) for a much better approach.
+
+## Introduction
 
 The purpose of this demo is to demonstrate essential techniques required to make real-time multiplayer games using the [Godot Engine](http://www.godotengine.org).
 
