@@ -1,6 +1,9 @@
 # Snapshot Interplation Demo
 
 ## Introduction
+
+**Note:** Snapshot interpolation is no longer my favoured approach for networked physics using Godot. Please see the [state synchronization demo](https://github.com/jrimclean/godot-state-sync-demo) for a much better approach.
+
 The purpose of this demo is to demonstrate essential techniques required to make real-time multiplayer games using the [Godot Engine](http://www.godotengine.org).
 
 The server runs a simple physical simulation involving three boxes. Users can drag the boxes around on either the client or the server. The server simulates less than ideal network conditions by sending only a limited number of packets per second.
@@ -20,9 +23,6 @@ I did more reading about client-side prediction and lag compensation, and I've c
 * Adjustable network frame rate to simulate less than ideal network conditions
 * Cubic Hermite interpolation for positions
 * Spherical linear interpolation for rotations
-
-## Todo
-* Use UDP instead of TCP
 
 ## License
 Copyright (c) 2015 James McLean  
